@@ -10,8 +10,6 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
-
 	root := &cobra.Command{
 		Use:   "outbox",
 		Short: "Outbox",
@@ -21,6 +19,7 @@ func main() {
 		Use:   "api",
 		Short: "Outbox API",
 		Run: func(cmd *cobra.Command, args []string) {
+			ctx := context.Background()
 			server := server.NewApiServer()
 			server.Run(ctx)
 		},

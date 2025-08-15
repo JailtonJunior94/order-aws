@@ -1,9 +1,17 @@
 resource "aws_s3_bucket" "orders_bucket" {
   bucket = "${var.enviroment}-orders-bucket"
- 
+
   tags = {
     Name        = "${var.prefix}-orders-bucket"
     Environment = var.enviroment
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "orders_bucket_ownership_controls" {
+  bucket = aws_s3_bucket.orders_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
   }
 }
 
@@ -13,6 +21,13 @@ resource "aws_s3_bucket_versioning" "orders_bucket_versioning" {
   versioning_configuration {
     status = "Enabled"
   }
+}
+
+resource "aws_s3_bucket_acl" "orders_bucket_acl" {
+  bucket = aws_s3_bucket.orders_bucket.id
+
+  acl = "private"
+  depends_on = [ aws_s3_bucket.orders_bucket, aws_s3_bucket_ownership_controls.orders_bucket_ownership_controls ]
 }
 
 resource "aws_s3_bucket_public_access_block" "orders_bucket_access_block" {
@@ -30,10 +45,10 @@ resource "aws_s3_bucket_policy" "orders_bucket_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
+        Effect    = "Allow"
         Principal = "*"
-        Action = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
-        Resource = "${aws_s3_bucket.orders_bucket.arn}/*"
+        Action    = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+        Resource  = "${aws_s3_bucket.orders_bucket.arn}/*"
       }
     ]
   })

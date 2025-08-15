@@ -14,13 +14,10 @@ import (
 	"github.com/jailtonjunior94/order-aws/pkg/database"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
-
-type DynoNotation map[string]types.AttributeValue
 
 type apiServer struct {
 }
@@ -31,27 +28,30 @@ func NewApiServer() *apiServer {
 
 func (s *apiServer) Run(ctx context.Context) {
 	sdkConfig := aws.Config{Region: "us-east-1", BaseEndpoint: aws.String("http://localhost:4566")}
-	dbClient, err := database.NewDynamoDBClient(ctx, sdkConfig, "local-orders")
+	dynamoDBClient, err := database.NewDynamoDBClient(ctx, sdkConfig, "local-orders")
 	if err != nil {
 		log.Fatalf("Failed to create DynamoDB client: %v", err)
 	}
 
-	Item := DynoNotation{
+	item := database.DynoNotation{
 		"id":          &types.AttributeValueMemberS{Value: "123"},
 		"name":        &types.AttributeValueMemberS{Value: "Sample Item"},
 		"description": &types.AttributeValueMemberS{Value: "This is a sample item."},
 	}
 
-	response, err := dbClient.DynamoDBClient.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(dbClient.TableName),
-		Item:      Item,
-	})
-
+	err = dynamoDBClient.PutItem(ctx, item)
 	if err != nil {
 		log.Fatalf("Failed to put item in DynamoDB: %v", err)
 	}
-	log.Printf("Item added successfully: %v", response)
-	log.Println("DynamoDB client initialized successfully")
+
+	key := database.DynoNotation{
+		"id": &types.AttributeValueMemberS{Value: "123"},
+	}
+	retrievedItem, err := dynamoDBClient.GetItem(ctx, key)
+	if err != nil {
+		log.Fatalf("Failed to get item from DynamoDB: %v", err)
+	}
+	fmt.Printf("Retrieved item: %v\n", retrievedItem)
 
 	router := chi.NewRouter()
 	router.Use(

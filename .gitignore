@@ -2,3 +2,6 @@
 .terraform
 .terraform.*
 terraform.*
+
+# Bin
+/bin

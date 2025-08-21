@@ -4,7 +4,7 @@ go 1.25
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.38.0
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.48.0
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.49.0
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/spf13/cobra v1.9.1
 )

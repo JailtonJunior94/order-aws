@@ -27,13 +27,3 @@ resource "aws_sqs_queue" "orders_queue_dlq" {
     Environment = var.enviroment
   }
 }
-
-output "orders_queue_arn" {
-  description = "The ARN of the main SQS queue"
-  value       = aws_sqs_queue.orders_queue.arn
-}
-
-output "orders_queue_dlq_arn" {
-  description = "The ARN of the DLQ SQS queue"
-  value       = aws_sqs_queue.orders_queue_dlq.arn
-}

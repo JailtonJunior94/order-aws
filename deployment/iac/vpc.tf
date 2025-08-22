@@ -22,14 +22,6 @@ resource "aws_subnet" "subnets" {
   depends_on = [aws_vpc.main_vpc]
 }
 
-output "subnets" {
-  value = aws_subnet.subnets.*.id
-}
-
-output "vpc_id" {
-  value = aws_vpc.main_vpc.id
-}
-
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.main_vpc.id
   tags = {

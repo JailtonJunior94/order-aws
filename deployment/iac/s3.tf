@@ -26,8 +26,8 @@ resource "aws_s3_bucket_versioning" "orders_bucket_versioning" {
 resource "aws_s3_bucket_acl" "orders_bucket_acl" {
   bucket = aws_s3_bucket.orders_bucket.id
 
-  acl = "private"
-  depends_on = [ aws_s3_bucket.orders_bucket, aws_s3_bucket_ownership_controls.orders_bucket_ownership_controls ]
+  acl        = "private"
+  depends_on = [aws_s3_bucket.orders_bucket, aws_s3_bucket_ownership_controls.orders_bucket_ownership_controls]
 }
 
 resource "aws_s3_bucket_public_access_block" "orders_bucket_access_block" {

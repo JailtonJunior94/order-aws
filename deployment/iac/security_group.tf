@@ -10,16 +10,8 @@ resource "aws_security_group" "security_group" {
   }
 
   tags = {
-    Name = "${var.prefix}-security-group"
+    Name        = "${var.prefix}-security-group"
     Environment = var.enviroment
   }
   depends_on = [aws_vpc.main_vpc]
-}
-
-output "security_group_name" {
-  value = aws_security_group.security_group.name
-}
-
-output "security_group_id" {
-  value = aws_security_group.security_group.id
 }

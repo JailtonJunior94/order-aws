@@ -5,10 +5,10 @@ stop_localstack:
 	docker compose -f deployment/docker-compose.yml down
 
 create_infra_local:
-	cd deployment/terraform && terraform init && terraform apply -auto-approve
+	cd deployment/iac && terraform init && terraform apply -auto-approve
 	
 destroy_infra_local:
-	cd deployment/terraform && terraform destroy -auto-approve
+	cd deployment/iac && terraform destroy -auto-approve
 
 dotenv:
 	@echo "Creating .env file..."

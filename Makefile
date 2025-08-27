@@ -1,3 +1,7 @@
+install_taskfile:
+	@echo "Installing taskfile..."
+	@go install github.com/go-task/task/v3/cmd/task@latest
+
 start_localstack:
 	docker compose -f deployment/docker-compose.yml up --build -d
 

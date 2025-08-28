@@ -48,12 +48,12 @@ tasks:
     cmds:
     - rm -rf bin/*
 
-  docker:up:
+  start:localstack:
     desc: Start Docker Compose services
     cmds:
     - docker-compose -f deployment/docker-compose.yml up -d
 
-  docker:down:
+  stop:localstack:
     desc: Stop Docker Compose services
     cmds:
     - docker-compose -f deployment/docker-compose.yml down

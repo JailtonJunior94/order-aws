@@ -53,3 +53,16 @@ resource "aws_s3_bucket_policy" "orders_bucket_policy" {
     ]
   })
 }
+
+resource "aws_s3_bucket_notification" "orders_bucket_notification" {
+  bucket = aws_s3_bucket.orders_bucket.id
+
+  queue {
+    queue_arn     = aws_sqs_queue.orders_queue.arn
+    events        = ["s3:ObjectCreated:*"]
+    filter_prefix = "" # opcional: pode filtrar por prefixo
+    filter_suffix = "" # opcional: pode filtrar por sufixo
+  }
+
+  depends_on = [aws_s3_bucket_policy.orders_bucket_policy]
+}

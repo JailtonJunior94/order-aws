@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/jailtonjunior94/order-aws/pkg/database"
+	"github.com/jailtonjunior94/order-aws/pkg/storage"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -28,6 +29,22 @@ func NewApiServer() *apiServer {
 
 func (s *apiServer) Run(ctx context.Context) {
 	sdkConfig := aws.Config{Region: "us-east-1", BaseEndpoint: aws.String("http://localhost:4566")}
+
+	s3Client, err := storage.NewStorageClient(ctx, sdkConfig, "local-orders-bucket")
+	if err != nil {
+		log.Fatalf("Failed to create S3 client: %v", err)
+	}
+
+	file, err := os.Open("parametros_0.json")
+	if err != nil {
+		log.Fatalf("Failed to open file: %v", err)
+	}
+	defer file.Close()
+
+	if err := s3Client.PutObject(ctx, "parametros_0.json", file); err != nil {
+		log.Fatalf("failed to put object in S3: %v", err)
+	}
+
 	dynamoDBClient, err := database.NewDynamoDBClient(ctx, sdkConfig, "local-orders")
 	if err != nil {
 		log.Fatalf("Failed to create DynamoDB client: %v", err)

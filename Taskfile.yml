@@ -1,53 +1,6 @@
 version: '3'
 
 tasks:
-  install-linter:
-    internal: true
-    status:
-    - sh -c '{{if ne .latest_lint_version .installed_lint_version}}{{end}}'
-    cmds:
-    - "echo new golangci-lint version found: {{.latest_lint_version}}"
-    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOPATH/bin latest
-    desc: install linter
-    silent: true
-    vars:
-      latest_lint_version:
-        sh: curl -s "https://api.github.com/repos/golangci/golangci-lint/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
-      installed_lint_version:
-        sh: golangci-lint --version 2>/dev/null | awk '{print "v"$4}'
-
-  build:
-    desc: Build the Go binary
-    cmds:
-    - go build -o bin/order ./cmd/main.go
-    sources:
-    - cmd/**/*.go
-    - internal/**/*.go
-    - pkg/**/*.go
-    generates:
-    - bin/order
-
-  run:
-    desc: Run the application
-    deps: [ build ]
-    cmds:
-    - ./bin/order
-
-  test:
-    desc: Run all tests
-    cmds:
-    - go test ./...
-
-  tidy:
-    desc: Clean up go.mod and go.sum
-    cmds:
-    - go mod tidy
-
-  clean:
-    desc: Remove build artifacts
-    cmds:
-    - rm -rf bin/*
-
   start:localstack:
     desc: Start Docker Compose services
     cmds:
@@ -57,17 +10,6 @@ tasks:
     desc: Stop Docker Compose services
     cmds:
     - docker-compose -f deployment/docker-compose.yml down
-
-  fmt:
-    desc: Format Go code
-    cmds:
-    - go fmt ./...
-
-  lint:
-    cmds:
-    - task: install-linter
-    - golangci-lint run
-    desc: linter
 
   terraform:init:
     desc: Initialize Terraform
@@ -92,3 +34,41 @@ tasks:
     dir: deployment/iac
     cmds:
     - terraform destroy -auto-approve
+
+  dotenv:
+    desc: Generate .env file
+    cmds:
+    - cp cmd/.env.example cmd/.env
+
+  build:
+    desc: Compiling Order...
+    cmds:
+    - CGO_ENABLED=0 go build -ldflags="-w -s" -o ./bin/order ./cmd/main.go
+
+  lint:
+    desc: Run linters
+    cmds:
+    - go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.2.1
+    - GOGC=20 golangci-lint run --config .golangci.yml ./...
+
+  vulncheck:
+    desc: Running vulnerability check...
+    cmds:
+    - go install golang.org/x/vuln/cmd/govulncheck@latest
+    - govulncheck ./...
+
+  mocks:
+    desc: Generating mocks...
+    cmds:
+    - go install github.com/vektra/mockery/v3@v3.5.0
+    - mockery
+
+  test:
+    desc: Running tests...
+    cmds:
+    - go test -count=1 -race -covermode=atomic -coverprofile=coverage.out ./...
+
+  coverage:
+    desc: Generating coverage report...
+    cmds:
+    - go tool cover -html=coverage.out

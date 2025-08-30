@@ -2,6 +2,6 @@ variable "prefix" {
   default = "order"
 }
 
-variable "enviroment" {
+variable "environment" {
   default = "local"
 }

@@ -5,3 +5,6 @@ terraform.*
 
 # Bin
 /bin
+
+#DS
+/.DS_Store

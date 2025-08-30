@@ -45,6 +45,14 @@ tasks:
     cmds:
     - CGO_ENABLED=0 go build -ldflags="-w -s" -o ./bin/order ./cmd/main.go
 
+  zip:lambda:
+    desc: Upload lambda
+    cmds:
+    - rm -rf ./bin/{*,.*}
+    - CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o ./bin/bootstrap ./cmd/lambdas/presign.go
+    - cd ./bin && zip presign.zip bootstrap
+    - cd ./bin && chmod 644 presign.zip
+
   lint:
     desc: Run linters
     cmds:

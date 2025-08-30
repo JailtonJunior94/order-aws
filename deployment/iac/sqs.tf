@@ -1,5 +1,5 @@
 resource "aws_sqs_queue" "orders_queue" {
-  name                       = "${var.enviroment}-orders"
+  name                       = "${var.environment}-orders"
   delay_seconds              = 0
   max_message_size           = 1024
   message_retention_seconds  = 345600
@@ -11,12 +11,12 @@ resource "aws_sqs_queue" "orders_queue" {
 
   tags = {
     Name        = "${var.prefix}-orders-queue"
-    Environment = var.enviroment
+    Environment = var.environment
   }
 }
 
 resource "aws_sqs_queue" "orders_queue_dlq" {
-  name                       = "${var.enviroment}-orders-dlq"
+  name                       = "${var.environment}-orders-dlq"
   delay_seconds              = 0
   max_message_size           = 1024
   message_retention_seconds  = 86400
@@ -24,6 +24,6 @@ resource "aws_sqs_queue" "orders_queue_dlq" {
 
   tags = {
     Name        = "${var.prefix}-orders-queue-dlq"
-    Environment = var.enviroment
+    Environment = var.environment
   }
 }

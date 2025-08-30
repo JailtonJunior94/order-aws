@@ -6,11 +6,18 @@ services:
       - "4566:4566"
       - "4510-4559:4510-4559"
     environment:
+      - LAMBDA_INIT_USER=root
       - DEFAULT_REGION=us-east-1
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT=300
     volumes:
       - "localstack_volume:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    healthcheck:
+      test: curl http://localhost:4566/_localstack/health
+      interval: 1s
+      timeout: 1s
+      retries: 10
 
 volumes:
   localstack_volume:

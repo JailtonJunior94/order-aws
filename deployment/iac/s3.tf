@@ -1,9 +1,9 @@
 resource "aws_s3_bucket" "orders_bucket" {
-  bucket = "${var.enviroment}-orders-bucket"
+  bucket = "${var.environment}-orders-bucket"
 
   tags = {
     Name        = "${var.prefix}-orders-bucket"
-    Environment = var.enviroment
+    Environment = var.environment
   }
 }
 

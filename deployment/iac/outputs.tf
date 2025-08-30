@@ -28,3 +28,7 @@ output "security_group_name" {
 output "security_group_id" {
   value = aws_security_group.security_group.id
 }
+
+output "api_gateway_id" {
+  value = aws_api_gateway_rest_api.orders_api.id
+}

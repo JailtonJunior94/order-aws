@@ -11,7 +11,7 @@ resource "aws_security_group" "security_group" {
 
   tags = {
     Name        = "${var.prefix}-security-group"
-    Environment = var.enviroment
+    Environment = var.environment
   }
   depends_on = [aws_vpc.main_vpc]
 }

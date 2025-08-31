@@ -49,7 +49,7 @@ tasks:
     desc: Upload lambda
     cmds:
     - rm -rf ./bin/{*,.*}
-    - CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o ./bin/bootstrap ./cmd/lambdas/presign.go
+    - CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o ./bin/bootstrap ./cmd/lambda/presign.go
     - cd ./bin && zip presign.zip bootstrap
     - cd ./bin && chmod 644 presign.zip
 

@@ -45,7 +45,9 @@ resource "aws_lambda_function" "main" {
 
   environment {
     variables = {
-      BUCKET_NAME = aws_s3_bucket.orders_bucket.bucket
+      REGION          = "us-east-1"
+      BUCKET_NAME     = aws_s3_bucket.orders_bucket.bucket
+      BUCKET_ENDPOINT = "http://s3.localhost.localstack.cloud:4566"
     }
   }
 }

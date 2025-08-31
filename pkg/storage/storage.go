@@ -3,7 +3,9 @@ package storage
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -14,7 +16,8 @@ import (
 
 type (
 	StorageClient interface {
-		PutObject(ctx context.Context) error
+		GetObject(ctx context.Context, key string) ([]byte, error)
+		PutObject(ctx context.Context, key string, body io.Reader) error
 		SignedURL(ctx context.Context, key string, expireInSeconds int64) (string, error)
 	}
 
@@ -44,7 +47,7 @@ func NewStorageClient(ctx context.Context, sdkConfig aws.Config, bucketName stri
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("storage: %v", err)
 	}
 
 	s3Client := s3.NewFromConfig(cfg)
@@ -65,6 +68,27 @@ func (s *storageClient) PutObject(ctx context.Context, key string, body io.Reade
 	return nil
 }
 
+func (s *storageClient) GetObject(ctx context.Context, key string) ([]byte, error) {
+	resp, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("storage: failed to close response body: %v", err)
+		}
+	}()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("storage: %v", err)
+	}
+	return body, nil
+}
+
 func (s *storageClient) SignedURL(ctx context.Context, key string, expireInSeconds int64) (string, error) {
 	input := &s3.PutObjectInput{
 		Key:         aws.String(key),
@@ -75,7 +99,7 @@ func (s *storageClient) SignedURL(ctx context.Context, key string, expireInSecon
 		p.Expires = time.Duration(expireInSeconds) * time.Second
 	})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("storage: %v", err)
 	}
 	return request.URL, nil
 }

@@ -4,12 +4,19 @@ import (
 	"context"
 	"log"
 
+	"github.com/jailtonjunior94/order-aws/cmd/consumer"
 	"github.com/jailtonjunior94/order-aws/cmd/server"
+	"github.com/jailtonjunior94/order-aws/configs"
 
 	"github.com/spf13/cobra"
 )
 
 func main() {
+	config, err := configs.LoadConfig(".")
+	if err != nil {
+		panic(err)
+	}
+
 	root := &cobra.Command{
 		Use:   "outbox",
 		Short: "Outbox",
@@ -29,7 +36,7 @@ func main() {
 		Use:   "consumers",
 		Short: "Outbox Consumers",
 		Run: func(cmd *cobra.Command, args []string) {
-
+			consumer.Run(config)
 		},
 	}
 

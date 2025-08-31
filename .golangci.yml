@@ -5,8 +5,6 @@ run:
   concurrency: 5
   verbose: true
   skip-dirs:
-  - "templates"
-  - "pipelines"
   - "cmd"
 
 issues:
@@ -23,8 +21,8 @@ issues:
 linters:
   disable:
   - godox
-  - staticcheck # Devemos habilitar em breve
-  - gosec # Devemos habilitar em breve
+  - staticcheck
+  - gosec
   enable-all: false
   enable:
   - bodyclose

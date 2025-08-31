@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "orders_bucket" {
-  bucket = "${var.environment}-orders-bucket"
-
+  bucket        = "${var.environment}-orders-bucket"
+  force_destroy = true
   tags = {
     Name        = "${var.prefix}-orders-bucket"
     Environment = var.environment

@@ -28,11 +28,7 @@ func NewApiServer() *apiServer {
 }
 
 func (s *apiServer) Run(ctx context.Context) {
-	sdkS3Config := aws.Config{
-		Region:       "us-east-1",
-		BaseEndpoint: aws.String("http://s3.localhost.localstack.cloud:4566"),
-	}
-
+	sdkS3Config := aws.Config{Region: "us-east-1", BaseEndpoint: aws.String("http://s3.localhost.localstack.cloud:4566")}
 	s3Client, err := storage.NewStorageClient(ctx, sdkS3Config, "local-orders-bucket")
 	if err != nil {
 		log.Fatalf("Failed to create S3 client: %v", err)
@@ -47,6 +43,12 @@ func (s *apiServer) Run(ctx context.Context) {
 	if err := s3Client.PutObject(ctx, "parametros_0.json", file); err != nil {
 		log.Fatalf("failed to put object in S3: %v", err)
 	}
+
+	url, err := s3Client.SignedURL(ctx, "parametros_0.json", 3600)
+	if err != nil {
+		log.Fatalf("Failed to get signed URL: %v", err)
+	}
+	fmt.Printf("Signed URL: %s\n", url)
 
 	sdkDynamoDBConfig := aws.Config{
 		Region:       "us-east-1",

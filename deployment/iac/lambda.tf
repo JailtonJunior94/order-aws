@@ -45,7 +45,7 @@ resource "aws_lambda_function" "main" {
 
   environment {
     variables = {
-      foo = "bar"
+      BUCKET_NAME = aws_s3_bucket.orders_bucket.bucket
     }
   }
 }

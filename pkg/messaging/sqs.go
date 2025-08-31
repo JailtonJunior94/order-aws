@@ -12,11 +12,11 @@ import (
 )
 
 type (
-	ConsumeHandler func(ctx context.Context, body []byte) error
+	ConsumeHandler func(ctx context.Context, message types.Message) error
 
 	SqsClient interface {
-		SendMessage(ctx context.Context, message string) error
-		DeleteMessage(ctx context.Context, messageID string) error
+		SendMessage(ctx context.Context, message types.Message) error
+		DeleteMessage(ctx context.Context, message types.Message) error
 		ReceiveMessages(ctx context.Context, maxNumberOfMessages int32, handler ConsumeHandler) error
 	}
 
@@ -43,13 +43,13 @@ func (s *sqsClient) ReceiveMessages(ctx context.Context, maxNumberOfMessages int
 	}
 
 	go func() {
-		for _, msg := range output.Messages {
-			if err := handler(ctx, []byte(*msg.Body)); err != nil {
+		for _, message := range output.Messages {
+			if err := handler(ctx, message); err != nil {
 				log.Fatalf("sqs: failed to process message: %v", err)
 				continue
 			}
 
-			if err := s.DeleteMessage(ctx, msg); err != nil {
+			if err := s.DeleteMessage(ctx, message); err != nil {
 				log.Fatalf("sqs: failed to delete message: %v", err)
 				continue
 			}
@@ -67,10 +67,10 @@ func (s *sqsClient) SendMessage(ctx context.Context, message types.Message) erro
 	return fmt.Errorf("sqs: failed to send message: %v", err)
 }
 
-func (s *sqsClient) DeleteMessage(ctx context.Context, messageID types.Message) error {
+func (s *sqsClient) DeleteMessage(ctx context.Context, message types.Message) error {
 	_, err := s.sqsClient.DeleteMessage(ctx, &sqs.DeleteMessageInput{
 		QueueUrl:      aws.String(s.queue),
-		ReceiptHandle: messageID.ReceiptHandle,
+		ReceiptHandle: message.ReceiptHandle,
 	})
 	if err != nil {
 		return fmt.Errorf("sqs: failed to delete message: %v", err)

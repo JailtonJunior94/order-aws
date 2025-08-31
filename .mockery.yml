@@ -10,3 +10,21 @@ packages:
       pkgname: storageMock
     interfaces:
       StorageClient: {}
+  github.com/jailtonjunior94/order-aws/pkg/database:
+    config:
+      dir: ./pkg/database/mocks
+      pkgname: databaseMock
+    interfaces:
+      DynamoDBClient: {}
+  github.com/jailtonjunior94/order-aws/pkg/messaging:
+    config:
+      dir: ./pkg/messaging/mocks
+      pkgname: messagingMock
+    interfaces:
+      SqsClient: {}
+  github.com/jailtonjunior94/order-aws/internal/domain/ports:
+    interfaces:
+      OrderRepository:
+        config:
+          dir: ./internal/infrastructure/dynamo/mocks
+          pkgname: dynamoMock

@@ -2,20 +2,25 @@ package consumer
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/jailtonjunior94/order-aws/configs"
+	"github.com/jailtonjunior94/order-aws/internal/application/usecase"
+	"github.com/jailtonjunior94/order-aws/internal/infrastructure/dynamo"
+	"github.com/jailtonjunior94/order-aws/internal/infrastructure/sqs/consumer"
+	"github.com/jailtonjunior94/order-aws/pkg/database"
 	"github.com/jailtonjunior94/order-aws/pkg/messaging"
+	"github.com/jailtonjunior94/order-aws/pkg/storage"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
-func Run(config *configs.Config) {
-	ctx, cancel := context.WithCancel(context.Background())
+func Run(ctx context.Context, config *configs.Config) {
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	sigChan := make(chan os.Signal, 1)
@@ -23,38 +28,45 @@ func Run(config *configs.Config) {
 
 	go func() {
 		sig := <-sigChan
-		log.Printf("Received signal: %s. Shutting down gracefully...", sig)
+		log.Printf("received signal: %s. shutting down gracefully...", sig)
 		cancel()
 	}()
 
-	awsConfig := aws.Config{Region: "us-east-1", BaseEndpoint: aws.String("http://localhost:4566/")}
+	awsConfig := aws.Config{Region: config.AWSConfig.Region, BaseEndpoint: aws.String(config.AWSConfig.Endpoint)}
 	sqsClient, err := messaging.NewSqsClient(ctx, awsConfig, config.SQSConfig.QueueName)
 	if err != nil {
-		log.Fatalf("Failed to create SQS client: %v", err)
+		panic(fmt.Sprintf("failed to create SQS client: %v", err))
 	}
+
+	s3ClientConfig := aws.Config{Region: config.AWSConfig.Region, BaseEndpoint: aws.String(config.AWSConfig.S3Endpoint)}
+	s3Client, err := storage.NewStorageClient(ctx, s3ClientConfig, config.S3Config.BucketName)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create S3 client: %v", err))
+	}
+
+	dynamoClient, err := database.NewDynamoDBClient(ctx, awsConfig, config.DynamoDBConfig.TableName)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create DynamoDB client: %v", err))
+	}
+
+	orderRepository := dynamo.NewOrderRepository(dynamoClient)
+	createOrderUseCase := usecase.NewCreateOrderUseCase(s3Client, orderRepository)
+	createOrderHandler := consumer.NewPutObjectHandler(createOrderUseCase)
 
 	go func() {
 		for {
-			if err := sqsClient.ReceiveMessages(ctx, 10, handlerMessage); err != nil {
-				log.Fatalf("Failed to receive messages: %v", err)
+			if err := sqsClient.ReceiveMessages(ctx, config.SQSConfig.MaxNumberOfMessages, createOrderHandler.Handle); err != nil {
+				log.Printf("failed to receive messages: %v", err)
 			}
 		}
 	}()
 
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("Recovered from panic: %v", r)
+			log.Printf("recovered from panic: %v", r)
 		}
 	}()
 
 	<-ctx.Done()
-	log.Println("Consumer has been shut down.")
-}
-
-func handlerMessage(ctx context.Context, body []byte) error {
-	log.Println("Message received: ", string(body))
-	if string(body) == "error" {
-		return errors.New("deu ruim")
-	}
-	return nil
+	log.Println("consumer has been shut down.")
 }

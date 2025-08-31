@@ -1,0 +1,48 @@
+@startuml order
+
+title "Orders [AWS]"
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define DEVICONS2 https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons2
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v20.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/AWSC4Integration.puml
+
+!include DEVICONS/go.puml
+!include AWSPuml/ApplicationIntegration/APIGateway.puml
+' !include AWSPuml/ApplicationIntegration/SimpleQueueService.puml
+' !include AWSPuml/ApplicationIntegration/SimpleNotificationService.puml
+' !include AWSPuml/Compute/EC2.puml
+' !include AWSPuml/Compute/Lambda.puml
+' !include AWSPuml/Compute/APIGateway.puml
+' !include AWSPuml/Database/DynamoDB.puml
+' !include AWSPuml/Storage/S3.puml
+
+AddRelTag("async", $lineStyle = DashedLine())
+
+Person(customer, Clientes, "Clientes da plataforma")
+
+System_Boundary(Fluxo, "Order [AWS]") {
+    APIGateway(apiGateway, "API Gateway", "O API Gateway da AWS é um serviço totalmente gerenciado que permite criar, publicar, manter, monitorar e proteger APIs")
+    ' Container(backend, "Backend", "GoLang", "Representação de APIs internas do contexto de Banking", $sprite="go")
+    ' ContainerDb(messageBroker, "Message Broker", "Kafka", "Kafka é uma plataforma popular de streaming de eventos usada para coletar, processar e armazenar dados de eventos de streaming")
+    ' Container(consumer, "Consumer", "GoLang", "Consumidor de eventos e orquestrador", $sprite="go")
+    ' ContainerDb(database, "Database", "Postgres Database", "Responsável por armazenar eventos de acordo com o parceiro e tipo de evento", $sprite="postgresql")
+    ' SimpleNotificationService(notificationsTopic, "Notifications_Topic", "Tópico responsável por redirecionar eventos para queues [SQS]")
+    ' SimpleQueueService(pixQueue, "PixQueue", "Fila responsável por receber eventos do dominio de pix")
+
+    ' Rel(customer, app, "Solicita transferência via PIX para", "HTTPS/JSON")
+    ' Rel(app, apiGateway, "Solicita transferência via PIX para", "HTTPS/JSON")
+    ' Rel_R(apiGateway, backend, "Solicita transferência via PIX para", "HTTPS/JSON")
+    ' Rel(backend, messageBroker, "Dispara evento do tipo pix_out para", "AMQP/JSON",$tags="async")
+    ' Rel(messageBroker, consumer, "Recebe evento do tipo pix_out em", "AMQP/JSON", $tags="async")
+    ' Rel_R(consumer, database, "Enriquece os dados do evento e insere dados do evento em, utilizando", "TCP")
+    ' Rel(consumer, notificationsTopic, "Trata evento e devolve para consumo em", "AWS/SDK", $tags="async")
+    ' Rel_R(notificationsTopic, pixQueue, "Envia notificacões para os parceiros de acordo com as configurações", "AWS/SDK", $tags="async")
+    ' Rel(pixQueue, partners, "Envia notificacões para os parceiros de acordo com as configurações", "AWS/SDK", $tags="async")
+}
+
+@enduml

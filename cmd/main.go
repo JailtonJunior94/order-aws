@@ -26,9 +26,7 @@ func main() {
 		Use:   "api",
 		Short: "Outbox API",
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.Background()
-			server := server.NewApiServer()
-			server.Run(ctx)
+			server.Run(context.Background())
 		},
 	}
 
@@ -36,7 +34,7 @@ func main() {
 		Use:   "consumers",
 		Short: "Outbox Consumers",
 		Run: func(cmd *cobra.Command, args []string) {
-			consumer.Run(config)
+			consumer.Run(context.Background(), config)
 		},
 	}
 

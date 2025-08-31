@@ -1,14 +1,15 @@
 {
-    "order_id": "12345",
-    "customer_id": "67890",
+    "id": "12345",
     "items": [
         {
             "product_id": "111",
-            "quantity": 2
+            "quantity": 2,
+            "price": 10.0   
         },
         {
             "product_id": "222",
-            "quantity": 1
+            "quantity": 1,
+            "price": 20.0
         }
     ]
 }

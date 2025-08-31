@@ -1,226 +1,126 @@
 # Order AWS
 
-Um projeto Go para gerenciamento de pedidos utilizando serviços AWS com suporte a desenvolvimento local através do LocalStack.
+Um projeto em Go para gerenciamento de pedidos, utilizando serviços AWS simulados localmente com LocalStack. O objetivo é facilitar o desenvolvimento, testes e integração de aplicações que dependem de recursos AWS, sem custos ou dependência da nuvem real.
+
+## 🚀 Tecnologias Utilizadas
+
+- **Go**: Linguagem principal do projeto.
+- **Docker & Docker Compose**: Para orquestração de ambientes e serviços locais.
+- **LocalStack**: Simulação de serviços AWS (DynamoDB, S3, SQS, VPC, etc).
+- **Terraform**: Infraestrutura como código para provisionamento dos recursos AWS simulados.
+- **Taskfile**: Automação de tarefas comuns de desenvolvimento.
+- **GolangCI-Lint**: Ferramenta de linting para Go.
+- **Mockery**: Geração de mocks para testes.
+- **govulncheck**: Verificação de vulnerabilidades em dependências Go.
 
 ## 📋 Pré-requisitos
-
-Antes de começar, certifique-se de ter instalado:
 
 - [Go](https://golang.org/dl/) 1.21 ou superior
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Terraform](https://www.terraform.io/downloads.html) 0.13.1 ou superior
-- [Make](https://www.gnu.org/software/make/)
+- [Task](https://taskfile.dev/#/installation) (Taskfile runner)
 
 ## 🏗️ Arquitetura
 
-O projeto utiliza os seguintes serviços AWS:
+O projeto utiliza os seguintes serviços AWS simulados:
 
 - **DynamoDB**: Armazenamento de dados de pedidos
-- **S3**: Bucket para armazenamento de arquivos relacionados aos pedidos
+- **S3**: Bucket para arquivos relacionados aos pedidos
 - **SQS**: Fila para processamento assíncrono de pedidos (com Dead Letter Queue)
 - **VPC**: Rede virtual para isolamento dos recursos
 
-## 🚀 Configuração do Ambiente
+## ⚡ Como Usar
 
-### 1. Configuração de Variáveis de Ambiente
-
-```bash
-make dotenv
-```
-
-Este comando cria um arquivo `.env` a partir do template `.env.example` no diretório `cmd/`.
-
-### 2. Inicialização do LocalStack
-
-Para iniciar o ambiente local com LocalStack:
+### 1. Configurar variáveis de ambiente
 
 ```bash
-make start_localstack
+task dotenv
 ```
+Cria o arquivo `.env` a partir do template `.env.example` no diretório `cmd/`.
 
-Este comando:
-- Inicia o container LocalStack na porta 4566
-- Configura a região padrão como `us-east-1`
-- Cria um volume persistente para os dados
-
-### 3. Criação da Infraestrutura Local
-
-Para provisionar a infraestrutura AWS local:
+### 2. Iniciar o LocalStack
 
 ```bash
-make create_infra_local
+task start_localstack
 ```
+Inicia o LocalStack em container Docker na porta 4566.
 
-Este comando:
-- Inicializa o Terraform
-- Aplica automaticamente a configuração da infraestrutura
-- Cria os recursos: DynamoDB, S3, SQS, VPC e Security Groups
-
-### 4. Compilação da Aplicação
-
-Para compilar a aplicação:
+### 3. Provisionar infraestrutura local
 
 ```bash
-make build_order
+task create_infra_local
 ```
+Inicializa o Terraform e cria os recursos AWS simulados (DynamoDB, S3, SQS, VPC).
 
-O binário será gerado em `./bin/order`.
-
-## 🧪 Testes e Qualidade do Código
-
-### Executar Testes
+### 4. Compilar a aplicação
 
 ```bash
-make test
+task build_order
 ```
+Gera o binário em `./bin/order`.
 
-Executa todos os testes com:
-- Verificação de condições de corrida (`-race`)
-- Cobertura de código
-- Perfil de cobertura salvo em `coverage.out`
-
-### Relatório de Cobertura
+### 5. Executar testes
 
 ```bash
-make cover
+task test
 ```
+Executa todos os testes com verificação de condições de corrida e cobertura de código.
 
+### 6. Gerar relatório de cobertura
+
+```bash
+task cover
+```
 Gera um relatório HTML da cobertura de código.
 
-### Análise de Código (Linting)
+### 7. Análise de código (lint)
 
 ```bash
-make lint
+task lint
 ```
+Executa o `golangci-lint` conforme configuração.
 
-Executa o `golangci-lint` com a configuração definida em `.golangci.yml`.
-
-### Verificação de Vulnerabilidades
+### 8. Verificar vulnerabilidades
 
 ```bash
-make vulncheck
+task vulncheck
 ```
+Executa o `govulncheck` para identificar vulnerabilidades conhecidas.
 
-Executa o `govulncheck` para identificar vulnerabilidades conhecidas nas dependências.
-
-### Geração de Mocks
+### 9. Gerar mocks para testes
 
 ```bash
-make mocks
+task mocks
 ```
+Gera mocks usando o Mockery.
 
-Gera mocks usando o Mockery para testes unitários.
+### 10. Parar e limpar ambiente
 
-## 🛠️ Comandos Makefile Disponíveis
-
-| Comando | Descrição |
-|---------|-----------|
-| `start_localstack` | Inicia o LocalStack em container Docker |
-| `stop_localstack` | Para o container LocalStack |
-| `create_infra_local` | Cria a infraestrutura AWS local com Terraform |
-| `destroy_infra_local` | Destrói a infraestrutura AWS local |
-| `dotenv` | Cria arquivo .env a partir do template |
-| `build_order` | Compila a aplicação Go |
-| `lint` | Executa análise de código |
-| `mocks` | Gera mocks para testes |
-| `test` | Executa testes unitários |
-| `cover` | Gera relatório de cobertura |
-| `vulncheck` | Verifica vulnerabilidades |
+```bash
+task stop_localstack
+task destroy_infra_local
+```
+Para o LocalStack e destrói a infraestrutura provisionada.
 
 ## 📁 Estrutura do Projeto
 
 ```
 .
-├── Makefile                    # Comandos de automação
-├── README.md                   # Documentação do projeto
-├── .golangci.yml              # Configuração do linter
-├── cmd/                       # Aplicação principal
-├── config/                    # Configurações
-├── deployment/                # Arquivos de deploy
-│   ├── docker-compose.yml     # LocalStack setup
-│   └── terraform/             # Infraestrutura como código
-│       ├── dynamodb.tf        # Configuração DynamoDB
-│       ├── s3.tf              # Configuração S3
-│       ├── sqs.tf             # Configuração SQS
-│       ├── vpc.tf             # Configuração VPC
-│       ├── security_group.tf  # Security Groups
-│       ├── variables.tf       # Variáveis Terraform
-│       └── providers.tf       # Provedores AWS
-├── internal/                  # Código interno da aplicação
-└── pkg/                       # Pacotes reutilizáveis
+├── cmd/            # Aplicação principal
+├── configs/        # Configurações
+├── deployment/     # Docker Compose e Terraform
+├── internal/       # Domínio e lógica de negócio
+├── pkg/            # Pacotes reutilizáveis
+├── bin/            # Binários gerados
+├── Taskfile.yml    # Automação de tarefas
+└── README.md       # Documentação
 ```
 
-## 🔧 Desenvolvimento
-
-### Fluxo de Desenvolvimento Recomendado
-
-1. **Configurar ambiente**:
-   ```bash
-   make dotenv
-   make start_localstack
-   make create_infra_local
-   ```
-
-2. **Desenvolver e testar**:
-   ```bash
-   make test
-   make lint
-   make vulncheck
-   ```
-
-3. **Compilar**:
-   ```bash
-   make build_order
-   ```
-
-4. **Limpar ambiente** (quando necessário):
-   ```bash
-   make destroy_infra_local
-   make stop_localstack
-   ```
-
-### Recursos da Infraestrutura
-
-- **DynamoDB Table**: `local_orders` com chave hash `id`
-- **S3 Bucket**: `local-orders-bucket`
-- **SQS Queue**: `local_orders` com DLQ `local_orders_dlq`
-- **Endpoints LocalStack**: Disponíveis em `http://localhost:4566`
-
-## 📊 Monitoramento e Logs
-
-O LocalStack fornece logs detalhados dos serviços AWS simulados. Para visualizar:
-
-```bash
-docker logs localstack -f
-```
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
-
-## 📝 Licença
-
-Este projeto está sob a licença [MIT](LICENSE).
-
-## 🆘 Solução de Problemas
-
-### LocalStack não inicia
-- Verifique se o Docker está rodando
-- Certifique-se de que a porta 4566 não está sendo usada por outro serviço
-
-### Erro no Terraform
-- Verifique se o LocalStack está rodando antes de executar `make create_infra_local`
-- Execute `make destroy_infra_local` e depois `make create_infra_local` para recriar a infraestrutura
-
-### Testes falhando
-- Execute `make mocks` para regenerar os mocks
-- Verifique se todas as dependências estão instaladas
-
-## 📞 Suporte
+## 🆘 Suporte
 
 Para dúvidas ou problemas, abra uma issue no repositório do projeto.
+
+---
+
+Sinta-se à vontade para adaptar conforme os comandos e detalhes específicos do seu [Taskfile.yml](Taskfile.yml)

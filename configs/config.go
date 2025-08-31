@@ -8,16 +8,34 @@ import (
 
 type (
 	Config struct {
-		HTTPConfig HTTPConfig `mapstructure:",squash"`
-		SQSConfig  SQSConfig  `mapstructure:",squash"`
+		HTTPConfig     HTTPConfig     `mapstructure:",squash"`
+		AWSConfig      AWSConfig      `mapstructure:",squash"`
+		SQSConfig      SQSConfig      `mapstructure:",squash"`
+		S3Config       S3Config       `mapstructure:",squash"`
+		DynamoDBConfig DynamoDBConfig `mapstructure:",squash"`
 	}
 
 	HTTPConfig struct {
 		Port string `mapstructure:"HTTP_PORT"`
 	}
 
+	AWSConfig struct {
+		Region     string `mapstructure:"AWS_REGION"`
+		Endpoint   string `mapstructure:"AWS_ENDPOINT"`
+		S3Endpoint string `mapstructure:"AWS_S3_ENDPOINT"`
+	}
+
 	SQSConfig struct {
-		QueueName string `mapstructure:"QUEUE_NAME"`
+		QueueName           string `mapstructure:"QUEUE_NAME"`
+		MaxNumberOfMessages int32  `mapstructure:"MAX_NUMBER_OF_MESSAGES"`
+	}
+
+	S3Config struct {
+		BucketName string `mapstructure:"BUCKET_NAME"`
+	}
+
+	DynamoDBConfig struct {
+		TableName string `mapstructure:"TABLE_NAME"`
 	}
 )
 

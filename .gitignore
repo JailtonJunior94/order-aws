@@ -8,3 +8,8 @@ terraform.*
 
 #DS
 /.DS_Store
+
+# Coverage
+coverage.*
+
+*/.env

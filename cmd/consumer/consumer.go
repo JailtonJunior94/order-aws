@@ -55,7 +55,13 @@ func Run(ctx context.Context, config *configs.Config) {
 
 	go func() {
 		for {
-			if err := sqsClient.ReceiveMessages(ctx, config.SQSConfig.MaxNumberOfMessages, createOrderHandler.Handle); err != nil {
+			if err := sqsClient.ReceiveMessages(
+				ctx,
+				config.SQSConfig.MaxNumberOfMessages,
+				config.SQSConfig.WaitTimeSeconds,
+				config.SQSConfig.VisibilityTimeout,
+				createOrderHandler.Handle,
+			); err != nil {
 				log.Printf("failed to receive messages: %v", err)
 			}
 		}

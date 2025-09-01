@@ -28,6 +28,8 @@ type (
 	SQSConfig struct {
 		QueueName           string `mapstructure:"QUEUE_NAME"`
 		MaxNumberOfMessages int32  `mapstructure:"MAX_NUMBER_OF_MESSAGES"`
+		WaitTimeSeconds     int32  `mapstructure:"WAIT_TIME_SECONDS"`
+		VisibilityTimeout   int32  `mapstructure:"VISIBILITY_TIMEOUT"`
 	}
 
 	S3Config struct {

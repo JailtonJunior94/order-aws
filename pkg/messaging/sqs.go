@@ -33,10 +33,12 @@ func NewSqsClient(ctx context.Context, sdkConfig aws.Config, queueName string) (
 	return &sqsClient{queue: queueName, sqsClient: sqs.NewFromConfig(sdkConfig)}, nil
 }
 
-func (s *sqsClient) ReceiveMessages(ctx context.Context, maxNumberOfMessages int32, handler ConsumeHandler) error {
+func (s *sqsClient) ReceiveMessages(ctx context.Context, maxNumberOfMessages int32, waitTimeSeconds int32, visibilityTimeout int32, handler ConsumeHandler) error {
 	output, err := s.sqsClient.ReceiveMessage(ctx, &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(s.queue),
 		MaxNumberOfMessages: maxNumberOfMessages,
+		WaitTimeSeconds:     waitTimeSeconds,
+		VisibilityTimeout:   visibilityTimeout,
 	})
 	if err != nil {
 		return fmt.Errorf("sqs: failed to receive messages: %v", err)

@@ -11,11 +11,16 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/jailtonjunior94/order-aws/configs"
+	handlers "github.com/jailtonjunior94/order-aws/internal/infrastructure/http"
+	"github.com/jailtonjunior94/order-aws/pkg/messaging"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func Run(ctx context.Context) {
+func Run(ctx context.Context, config *configs.Config) {
 	router := chi.NewRouter()
 	router.Use(
 		middleware.RealIP,
@@ -23,6 +28,16 @@ func Run(ctx context.Context) {
 		middleware.SetHeader("Content-Type", "application/json"),
 		middleware.AllowContentType("application/json", "application/x-www-form-urlencoded"),
 	)
+
+	awsConfig := aws.Config{Region: config.AWSConfig.Region, BaseEndpoint: aws.String(config.AWSConfig.Endpoint)}
+	sqsClient, err := messaging.NewSqsClient(ctx, awsConfig, config.SQSConfig.QueueName)
+	if err != nil {
+		log.Fatalf("failed to create SQS client: %v", err)
+	}
+
+	orderHandler := handlers.NewOrderHandler(sqsClient)
+
+	router.Post("/orders", orderHandler.Handle)
 
 	/* Graceful shutdown */
 	server := http.Server{
@@ -33,12 +48,12 @@ func Run(ctx context.Context) {
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", "8001"))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("server: %v", err)
 	}
 
 	go func() {
 		if err := server.Serve(listener); err != nil && err != http.ErrServerClosed {
-			log.Fatal(err)
+			log.Fatalf("server: %v", err)
 		}
 	}()
 

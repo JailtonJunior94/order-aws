@@ -2,7 +2,6 @@ package consumer
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -35,18 +34,18 @@ func Run(ctx context.Context, config *configs.Config) {
 	awsConfig := aws.Config{Region: config.AWSConfig.Region, BaseEndpoint: aws.String(config.AWSConfig.Endpoint)}
 	sqsClient, err := messaging.NewSqsClient(ctx, awsConfig, config.SQSConfig.QueueName)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create SQS client: %v", err))
+		log.Fatalf("failed to create SQS client: %v", err)
 	}
 
 	s3ClientConfig := aws.Config{Region: config.AWSConfig.Region, BaseEndpoint: aws.String(config.AWSConfig.S3Endpoint)}
 	s3Client, err := storage.NewStorageClient(ctx, s3ClientConfig, config.S3Config.BucketName)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create S3 client: %v", err))
+		log.Fatalf("failed to create S3 client: %v", err)
 	}
 
 	dynamoClient, err := database.NewDynamoDBClient(ctx, awsConfig, config.DynamoDBConfig.TableName)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create DynamoDB client: %v", err))
+		log.Fatalf("failed to create DynamoDB client: %v", err)
 	}
 
 	orderRepository := dynamo.NewOrderRepository(dynamoClient)

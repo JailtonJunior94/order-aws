@@ -3,7 +3,7 @@ package messaging
 import "time"
 
 type (
-	S3EventNotifications struct {
+	EventNotifications struct {
 		Records []Record `json:"Records"`
 	}
 

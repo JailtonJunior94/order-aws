@@ -17,7 +17,7 @@ type (
 	SqsClient interface {
 		SendMessage(ctx context.Context, message types.Message) error
 		DeleteMessage(ctx context.Context, message types.Message) error
-		ReceiveMessages(ctx context.Context, maxNumberOfMessages int32, handler ConsumeHandler) error
+		ReceiveMessages(ctx context.Context, maxNumberOfMessages int32, waitTimeSeconds int32, visibilityTimeout int32, handler ConsumeHandler) error
 	}
 
 	sqsClient struct {
@@ -66,7 +66,10 @@ func (s *sqsClient) SendMessage(ctx context.Context, message types.Message) erro
 		MessageBody: message.Body,
 		QueueUrl:    aws.String(s.queue),
 	})
-	return fmt.Errorf("sqs: failed to send message: %v", err)
+	if err != nil {
+		return fmt.Errorf("sqs: failed to send message: %v", err)
+	}
+	return nil
 }
 
 func (s *sqsClient) DeleteMessage(ctx context.Context, message types.Message) error {

@@ -26,7 +26,7 @@ func main() {
 		Use:   "api",
 		Short: "Outbox API",
 		Run: func(cmd *cobra.Command, args []string) {
-			server.Run(context.Background())
+			server.Run(context.Background(), config)
 		},
 	}
 

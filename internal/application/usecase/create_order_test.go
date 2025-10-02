@@ -93,6 +93,7 @@ func (s *CreateOrderUseCaseSuite) TestExecute() {
 			createOrderUseCase := usecase.NewCreateOrderUseCase(
 				scenario.dependencies.storage,
 				scenario.dependencies.orderRepository,
+				nil,
 			)
 			err := createOrderUseCase.Execute(s.ctx, scenario.args.input)
 			scenario.expect(err)

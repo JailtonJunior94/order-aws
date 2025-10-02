@@ -34,6 +34,7 @@ func (r *orderRepository) Save(ctx context.Context, order *entities.Order) error
 
 	item := database.DynoNotation{
 		"id":    &types.AttributeValueMemberS{Value: order.ID},
+		"code":  &types.AttributeValueMemberS{Value: order.Code},
 		"items": &types.AttributeValueMemberL{Value: items},
 	}
 

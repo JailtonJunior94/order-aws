@@ -49,7 +49,8 @@ func Run(ctx context.Context, config *configs.Config) {
 	}
 
 	orderRepository := dynamo.NewOrderRepository(dynamoClient)
-	createOrderUseCase := usecase.NewCreateOrderUseCase(s3Client, orderRepository)
+	sequenceRepository := dynamo.NewSequenceRepository("local-orders-sequence", awsConfig)
+	createOrderUseCase := usecase.NewCreateOrderUseCase(s3Client, orderRepository, sequenceRepository)
 	createOrderHandler := consumer.NewPutObjectHandler(createOrderUseCase)
 
 	go func() {

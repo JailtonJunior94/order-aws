@@ -9,9 +9,10 @@ resource "aws_security_group" "security_group" {
     prefix_list_ids = []
   }
 
+  depends_on = [aws_vpc.main_vpc]
+
   tags = {
-    Name        = "${var.prefix}-security-group"
+    Name        = "${var.prefix}-${var.environment}"
     Environment = var.environment
   }
-  depends_on = [aws_vpc.main_vpc]
 }

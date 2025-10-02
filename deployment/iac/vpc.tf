@@ -1,7 +1,8 @@
 resource "aws_vpc" "main_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
-    Name = "${var.prefix}-vpc"
+    Name        = "${var.prefix}-${var.environment}"
+    Environment = var.environment
   }
 }
 
@@ -17,7 +18,8 @@ resource "aws_subnet" "subnets" {
   availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
 
   tags = {
-    Name = "${var.prefix}-subnet-${count.index}"
+    Name        = "${var.prefix}-${var.environment}"
+    Environment = var.environment
   }
   depends_on = [aws_vpc.main_vpc]
 }
@@ -25,7 +27,8 @@ resource "aws_subnet" "subnets" {
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.main_vpc.id
   tags = {
-    Name = "${var.prefix}-internet-gateway"
+    Name        = "${var.prefix}-${var.environment}"
+    Environment = var.environment
   }
   depends_on = [aws_vpc.main_vpc]
 }
@@ -38,8 +41,10 @@ resource "aws_route_table" "route_table" {
   }
 
   tags = {
-    Name = "${var.prefix}-route-table"
+    Name        = "${var.prefix}-${var.environment}"
+    Environment = var.environment
   }
+  
   depends_on = [
     aws_vpc.main_vpc,
     aws_internet_gateway.internet_gateway

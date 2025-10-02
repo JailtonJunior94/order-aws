@@ -10,7 +10,7 @@ resource "aws_sqs_queue" "orders_queue" {
   })
 
   tags = {
-    Name        = "${var.prefix}-orders-queue"
+    Name        = "${var.prefix}-${var.environment}"
     Environment = var.environment
   }
 }
@@ -23,7 +23,7 @@ resource "aws_sqs_queue" "orders_queue_dlq" {
   visibility_timeout_seconds = 30
 
   tags = {
-    Name        = "${var.prefix}-orders-queue-dlq"
+    Name        = "${var.prefix}-${var.environment}"
     Environment = var.environment
   }
 }

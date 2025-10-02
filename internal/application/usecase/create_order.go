@@ -16,18 +16,21 @@ type (
 	}
 
 	createOrderUseCase struct {
-		storage         storage.StorageClient
-		orderRepository ports.OrderRepository
+		storage            storage.StorageClient
+		orderRepository    ports.OrderRepository
+		sequenceRepository ports.SequenceRepository
 	}
 )
 
 func NewCreateOrderUseCase(
 	storage storage.StorageClient,
 	orderRepository ports.OrderRepository,
+	sequenceRepository ports.SequenceRepository,
 ) *createOrderUseCase {
 	return &createOrderUseCase{
-		storage:         storage,
-		orderRepository: orderRepository,
+		storage:            storage,
+		orderRepository:    orderRepository,
+		sequenceRepository: sequenceRepository,
 	}
 }
 
@@ -42,7 +45,12 @@ func (u *createOrderUseCase) Execute(ctx context.Context, objectKey string) erro
 		return fmt.Errorf("create_order_use_case: failed to unmarshal order: %v", err)
 	}
 
-	newOrder, err := entities.NewOrder(order.Items)
+	sequence, err := u.sequenceRepository.NextValue(ctx, entities.NewSequence(order.Code))
+	if err != nil {
+		return fmt.Errorf("create_order_use_case: failed to get next sequence value: %v", err)
+	}
+
+	newOrder, err := entities.NewOrder(sequence, order.Items)
 	if err != nil {
 		return fmt.Errorf("create_order_use_case: failed to create new order: %v", err)
 	}

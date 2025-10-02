@@ -10,6 +10,11 @@ resource "aws_iam_role" "lambda_exec" {
       }
     }]
   })
+
+  tags = {
+    Name        = "${var.prefix}-${var.environment}"
+    Environment = var.environment
+  }
 }
 
 resource "aws_iam_role_policy" "lambda_policy" {
@@ -49,5 +54,10 @@ resource "aws_lambda_function" "main" {
       BUCKET_NAME     = aws_s3_bucket.orders_bucket.bucket
       BUCKET_ENDPOINT = "http://s3.localhost.localstack.cloud:4566"
     }
+  }
+
+  tags = {
+    Name        = "${var.prefix}-${var.environment}"
+    Environment = var.environment
   }
 }

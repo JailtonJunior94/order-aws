@@ -19,7 +19,7 @@ func NewOrderHandler(sqsClient messaging.SqsClient) *OrderHandler {
 }
 
 func (h *OrderHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	entity, err := entities.NewOrder([]entities.Item{{ProductID: "123", Quantity: 2, Price: 10.0}})
+	entity, err := entities.NewOrder(0, []entities.Item{{ProductID: "123", Quantity: 2, Price: 10.0}})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -37,5 +37,8 @@ func (h *OrderHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Order processed successfully"))
+	if _, err := w.Write([]byte("Order processed successfully")); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

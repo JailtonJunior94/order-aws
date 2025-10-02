@@ -97,16 +97,16 @@ func (_c *SqsClient_DeleteMessage_Call) RunAndReturn(run func(ctx context.Contex
 }
 
 // ReceiveMessages provides a mock function for the type SqsClient
-func (_mock *SqsClient) ReceiveMessages(ctx context.Context, maxNumberOfMessages int32, handler messaging.ConsumeHandler) error {
-	ret := _mock.Called(ctx, maxNumberOfMessages, handler)
+func (_mock *SqsClient) ReceiveMessages(ctx context.Context, maxNumberOfMessages int32, waitTimeSeconds int32, visibilityTimeout int32, handler messaging.ConsumeHandler) error {
+	ret := _mock.Called(ctx, maxNumberOfMessages, waitTimeSeconds, visibilityTimeout, handler)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ReceiveMessages")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32, messaging.ConsumeHandler) error); ok {
-		r0 = returnFunc(ctx, maxNumberOfMessages, handler)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32, int32, int32, messaging.ConsumeHandler) error); ok {
+		r0 = returnFunc(ctx, maxNumberOfMessages, waitTimeSeconds, visibilityTimeout, handler)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -121,12 +121,14 @@ type SqsClient_ReceiveMessages_Call struct {
 // ReceiveMessages is a helper method to define mock.On call
 //   - ctx context.Context
 //   - maxNumberOfMessages int32
+//   - waitTimeSeconds int32
+//   - visibilityTimeout int32
 //   - handler messaging.ConsumeHandler
-func (_e *SqsClient_Expecter) ReceiveMessages(ctx interface{}, maxNumberOfMessages interface{}, handler interface{}) *SqsClient_ReceiveMessages_Call {
-	return &SqsClient_ReceiveMessages_Call{Call: _e.mock.On("ReceiveMessages", ctx, maxNumberOfMessages, handler)}
+func (_e *SqsClient_Expecter) ReceiveMessages(ctx interface{}, maxNumberOfMessages interface{}, waitTimeSeconds interface{}, visibilityTimeout interface{}, handler interface{}) *SqsClient_ReceiveMessages_Call {
+	return &SqsClient_ReceiveMessages_Call{Call: _e.mock.On("ReceiveMessages", ctx, maxNumberOfMessages, waitTimeSeconds, visibilityTimeout, handler)}
 }
 
-func (_c *SqsClient_ReceiveMessages_Call) Run(run func(ctx context.Context, maxNumberOfMessages int32, handler messaging.ConsumeHandler)) *SqsClient_ReceiveMessages_Call {
+func (_c *SqsClient_ReceiveMessages_Call) Run(run func(ctx context.Context, maxNumberOfMessages int32, waitTimeSeconds int32, visibilityTimeout int32, handler messaging.ConsumeHandler)) *SqsClient_ReceiveMessages_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -136,14 +138,24 @@ func (_c *SqsClient_ReceiveMessages_Call) Run(run func(ctx context.Context, maxN
 		if args[1] != nil {
 			arg1 = args[1].(int32)
 		}
-		var arg2 messaging.ConsumeHandler
+		var arg2 int32
 		if args[2] != nil {
-			arg2 = args[2].(messaging.ConsumeHandler)
+			arg2 = args[2].(int32)
+		}
+		var arg3 int32
+		if args[3] != nil {
+			arg3 = args[3].(int32)
+		}
+		var arg4 messaging.ConsumeHandler
+		if args[4] != nil {
+			arg4 = args[4].(messaging.ConsumeHandler)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
+			arg4,
 		)
 	})
 	return _c
@@ -154,7 +166,7 @@ func (_c *SqsClient_ReceiveMessages_Call) Return(err error) *SqsClient_ReceiveMe
 	return _c
 }
 
-func (_c *SqsClient_ReceiveMessages_Call) RunAndReturn(run func(ctx context.Context, maxNumberOfMessages int32, handler messaging.ConsumeHandler) error) *SqsClient_ReceiveMessages_Call {
+func (_c *SqsClient_ReceiveMessages_Call) RunAndReturn(run func(ctx context.Context, maxNumberOfMessages int32, waitTimeSeconds int32, visibilityTimeout int32, handler messaging.ConsumeHandler) error) *SqsClient_ReceiveMessages_Call {
 	_c.Call.Return(run)
 	return _c
 }
